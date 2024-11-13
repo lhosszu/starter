@@ -1,4 +1,4 @@
-# Web service starter
+# Web service starter kit
 
 ### The bare essentials for starting web service development
 
@@ -8,7 +8,7 @@
 - containerization (Docker)
 - SpringBoot / embedded Tomcat
 - data persistence (H2 / Hibernate)
-- database migration with Flyway
+- database migration (Flyway)
 
 ### Features
 
