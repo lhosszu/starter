@@ -1,12 +1,18 @@
 package com.sourdough.starter.user;
 
+import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("FROM users WHERE name = ?1 AND enabled = TRUE")
-    User findEnabledByName(String name);
+    default Optional<User> findEnabledByName(String name) {
+        return findOne(Example.of(User.builder()
+                                      .name(name)
+                                      .enabled(Boolean.TRUE)
+                                      .build()));
+    }
 }

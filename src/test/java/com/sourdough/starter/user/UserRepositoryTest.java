@@ -20,8 +20,8 @@ class UserRepositoryTest {
 
     @Test
     void canFindEnabledUserByName() {
-        User user = userRepository.findEnabledByName("foo");
+        var user = userRepository.findEnabledByName("foo");
 
-        assertThat(user).extracting(User::getName).isEqualTo("foo");
+        assertThat(user).map(User::getName).get().isEqualTo("foo");
     }
 }

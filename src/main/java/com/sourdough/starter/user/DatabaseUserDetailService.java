@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Loading details of enabled users based on username in the Basic Authorization header.
@@ -23,8 +22,8 @@ public class DatabaseUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return Optional.ofNullable(userRepository.findEnabledByName(username))
-                       .map(user -> new User(user.getName(), "{bcrypt}%s".formatted(user.getPassword()), List.of(new SimpleGrantedAuthority("USER"))))
-                       .orElseThrow(() -> new InsufficientAuthenticationException("Cannot find enabled user: " + username));
+        return userRepository.findEnabledByName(username)
+                             .map(user -> new User(user.getName(), "{bcrypt}%s".formatted(user.getPassword()), List.of(new SimpleGrantedAuthority("USER"))))
+                             .orElseThrow(() -> new InsufficientAuthenticationException("Cannot find enabled user: " + username));
     }
 }

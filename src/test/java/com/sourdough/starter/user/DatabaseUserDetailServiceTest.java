@@ -7,6 +7,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,7 +22,7 @@ class DatabaseUserDetailServiceTest {
 
     @Test
     void whenUserFound_thenLoadUser() {
-        when(userRepository.findEnabledByName("foo")).thenReturn(new User(null, "foo", "pw", true));
+        when(userRepository.findEnabledByName("foo")).thenReturn(Optional.of(new User(null, "foo", "pw", true)));
         UserDetails userDetails = new DatabaseUserDetailService(userRepository).loadUserByUsername("foo");
 
         assertThat(userDetails).extracting("username", "password").containsExactly("foo", "{bcrypt}pw");
@@ -28,7 +30,7 @@ class DatabaseUserDetailServiceTest {
 
     @Test
     void whenUserMissing_thenThrowException() {
-        when(userRepository.findEnabledByName(any())).thenReturn(null);
+        when(userRepository.findEnabledByName(any())).thenReturn(Optional.empty());
         DatabaseUserDetailService userDetailsService = new DatabaseUserDetailService(userRepository);
 
         assertThatThrownBy(() -> userDetailsService.loadUserByUsername("foobar")).isInstanceOf(AuthenticationException.class);

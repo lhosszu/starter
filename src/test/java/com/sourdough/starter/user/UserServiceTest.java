@@ -6,6 +6,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -17,7 +19,7 @@ class UserServiceTest {
 
     @Test
     void whenFindByName_thenReturnUser() {
-        Mockito.when(userRepository.findEnabledByName("foo")).thenReturn(new User(null, "foo", "bar", true));
+        Mockito.when(userRepository.findEnabledByName("foo")).thenReturn(Optional.of(new User(null, "foo", "bar", true)));
 
         User actualUser = new UserService(userRepository).findByName("foo");
 
@@ -33,7 +35,7 @@ class UserServiceTest {
 
     @Test
     void whenFindDisabledUserByName_thenThrowException() {
-        Mockito.when(userRepository.findEnabledByName("foo")).thenReturn(null);
+        Mockito.when(userRepository.findEnabledByName("foo")).thenReturn(Optional.empty());
 
         UserService userService = new UserService(userRepository);
 
