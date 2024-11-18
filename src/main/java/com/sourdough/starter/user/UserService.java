@@ -1,5 +1,6 @@
 package com.sourdough.starter.user;
 
+import com.sourdough.starter.util.RequestUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,16 @@ public class UserService {
             throw new UserException("User %s already exists".formatted(name));
         }
 
-        return userRepository.save(User.builder()
-                                       .name(name)
-                                       .password(encodePassword(rawPassword))
-                                       .build());
+        return userRepository.create(name, encodePassword(rawPassword));
+    }
+
+    public User disable(String name) {
+        if (name.equalsIgnoreCase(RequestUtils.getAuthenticatedUserName())) {
+            throw new UserException("Cannot update authenticated user");
+        }
+
+        return userRepository.disable(name)
+                             .orElseThrow(() -> new UserException("User %s not found".formatted(name)));
     }
 
     private String encodePassword(String rawPassword) {

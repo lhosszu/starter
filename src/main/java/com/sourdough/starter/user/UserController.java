@@ -28,4 +28,11 @@ public class UserController {
         User user = userService.create(userRequest.name(), userRequest.rawPassword());
         return ResponseEntity.ok(UserResponse.fromModel(user));
     }
+
+    @PutMapping("{name}/disable")
+    @Operation(summary = "Disable user", tags = {"users"})
+    public ResponseEntity<UserResponse> disableUser(@PathVariable String name) {
+        User user = userService.disable(name);
+        return ResponseEntity.ok(UserResponse.fromModel(user));
+    }
 }

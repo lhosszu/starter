@@ -31,4 +31,13 @@ class UserRepositoryTest {
 
         assertThat(exists).isTrue();
     }
+
+    @Test
+    void canDisableUser() {
+        var user = userRepository.disable("foo");
+
+        assertThat(user).get()
+                        .extracting(User::getName, User::getEnabled, User::getVersion)
+                        .containsExactly("foo", false, 2L);
+    }
 }

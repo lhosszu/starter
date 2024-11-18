@@ -6,7 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +25,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         userService = new UserService(userRepository);
+        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
     }
 
     @Test
@@ -50,5 +54,14 @@ class UserServiceTest {
         Mockito.when(userRepository.userExists("foo")).thenReturn(true);
 
         assertThatThrownBy(() -> userService.create("foo", "bar")).isInstanceOf(UserException.class);
+    }
+
+    @Test
+    void givenAuthenticatedUser_whenDisable_thenThrowException() {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(
+                new org.springframework.security.core.userdetails.User("foo", "", List.of()), null)
+        );
+
+        assertThatThrownBy(() -> userService.disable("foo")).isInstanceOf(UserException.class);
     }
 }

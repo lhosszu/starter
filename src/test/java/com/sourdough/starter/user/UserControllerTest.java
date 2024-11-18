@@ -12,8 +12,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WithMockUser
@@ -37,7 +36,7 @@ class UserControllerTest {
     }
 
     @Test
-    void canCreateNewUser() throws Exception {
+    void canCreateUser() throws Exception {
         Mockito.when(userService.create("john-doe", "lipsum")).thenReturn(
                 User.enabled().name("john-doe").password("lipsum").build()
         );
@@ -46,6 +45,16 @@ class UserControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(new UserRequest("john-doe", "lipsum"))))
+               .andExpect(status().isOk());
+    }
+
+    @Test
+    void canDisableUser() throws Exception {
+        Mockito.when(userService.disable("john-doe")).thenReturn(
+                User.builder().name("john-doe").enabled(Boolean.FALSE).password("lipsum").build()
+        );
+
+        mockMvc.perform(put("/users/john-doe/disable").with(csrf()))
                .andExpect(status().isOk());
     }
 }
