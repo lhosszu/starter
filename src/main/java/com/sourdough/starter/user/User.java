@@ -23,4 +23,11 @@ public class User {
 
     @Column(nullable = false)
     private Boolean enabled;
+
+    @Version
+    private Integer version;
+
+    public static UserBuilder enabled() {
+        return builder().enabled(Boolean.TRUE);
+    }
 }

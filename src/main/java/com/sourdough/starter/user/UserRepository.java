@@ -10,9 +10,10 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     default Optional<User> findEnabledByName(String name) {
-        return findOne(Example.of(User.builder()
-                                      .name(name)
-                                      .enabled(Boolean.TRUE)
-                                      .build()));
+        return findOne(Example.of(User.builder().name(name).enabled(Boolean.TRUE).build()));
+    }
+
+    default boolean userExists(String name) {
+        return findOne(Example.of(User.builder().name(name).build())).isPresent();
     }
 }

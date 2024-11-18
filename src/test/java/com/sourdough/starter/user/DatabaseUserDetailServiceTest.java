@@ -22,7 +22,7 @@ class DatabaseUserDetailServiceTest {
 
     @Test
     void whenUserFound_thenLoadUser() {
-        when(userRepository.findEnabledByName("foo")).thenReturn(Optional.of(new User(null, "foo", "pw", true)));
+        when(userRepository.findEnabledByName("foo")).thenReturn(Optional.of(User.enabled().name("foo").password("pw").build()));
         UserDetails userDetails = new DatabaseUserDetailService(userRepository).loadUserByUsername("foo");
 
         assertThat(userDetails).extracting("username", "password").containsExactly("foo", "{bcrypt}pw");

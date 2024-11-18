@@ -1,5 +1,6 @@
 package com.sourdough.starter.user;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -16,29 +17,38 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+    private UserService userService;
+
+    @BeforeEach
+    void setUp() {
+        userService = new UserService(userRepository);
+    }
 
     @Test
-    void whenFindByName_thenReturnUser() {
-        Mockito.when(userRepository.findEnabledByName("foo")).thenReturn(Optional.of(new User(null, "foo", "bar", true)));
+    void whenFind_thenReturnUser() {
+        Mockito.when(userRepository.findEnabledByName("foo")).thenReturn(Optional.of(User.enabled().name("foo").password("bar").build()));
 
-        User actualUser = new UserService(userRepository).findByName("foo");
+        User actualUser = userService.find("foo");
 
-        assertThat(actualUser).isEqualTo(new User(null, "foo", "bar", true));
+        assertThat(actualUser).isEqualTo(User.enabled().name("foo").password("bar").build());
     }
 
     @Test
     void whenFindMissingUserByName_thenThrowException() {
-        UserService userService = new UserService(userRepository);
-
-        assertThatThrownBy(() -> userService.findByName("lipsum")).isInstanceOf(UserException.class);
+        assertThatThrownBy(() -> userService.find("lipsum")).isInstanceOf(UserException.class);
     }
 
     @Test
     void whenFindDisabledUserByName_thenThrowException() {
         Mockito.when(userRepository.findEnabledByName("foo")).thenReturn(Optional.empty());
 
-        UserService userService = new UserService(userRepository);
+        assertThatThrownBy(() -> userService.find("foo")).isInstanceOf(UserException.class);
+    }
 
-        assertThatThrownBy(() -> userService.findByName("foo")).isInstanceOf(UserException.class);
+    @Test
+    void givenUserAlreadyExists_whenCreateNewUser_thenThrowException() {
+        Mockito.when(userRepository.userExists("foo")).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.create("foo", "bar")).isInstanceOf(UserException.class);
     }
 }

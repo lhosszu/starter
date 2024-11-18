@@ -24,4 +24,11 @@ class UserRepositoryTest {
 
         assertThat(user).map(User::getName).get().isEqualTo("foo");
     }
+
+    @Test
+    void canDetermineUserExists() {
+        var exists = userRepository.userExists("foo");
+
+        assertThat(exists).isTrue();
+    }
 }

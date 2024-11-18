@@ -1,6 +1,7 @@
 package com.sourdough.starter.user;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,9 +13,24 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User findByName(String name) {
+    public User find(String name) {
         return userRepository.findEnabledByName(name)
                              .orElseThrow(() -> new UserException("User %s missing or disabled".formatted(name)));
 
+    }
+
+    public User create(String name, String rawPassword) {
+        if (userRepository.userExists(name)) {
+            throw new UserException("User %s already exists".formatted(name));
+        }
+
+        return userRepository.save(User.builder()
+                                       .name(name)
+                                       .password(encodePassword(rawPassword))
+                                       .build());
+    }
+
+    private String encodePassword(String rawPassword) {
+        return new BCryptPasswordEncoder().encode(rawPassword);
     }
 }
