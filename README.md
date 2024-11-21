@@ -15,6 +15,7 @@
 - simple domain-driven package structure
 - Rest API with Basic Authentication
 - global exception handler
+- enabled health check for probing
 
 ### Build & run
 
