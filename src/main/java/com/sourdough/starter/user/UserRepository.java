@@ -13,6 +13,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
         return findOne(Example.of(User.enabled().name(name).build()));
     }
 
+    default Optional<User> findByName(String name) {
+        return findOne(Example.of(User.builder().name(name).build()));
+    }
+
     default boolean userExists(String name) {
         return findOne(Example.of(User.builder().name(name).build())).isPresent();
     }

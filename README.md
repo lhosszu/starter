@@ -9,11 +9,28 @@
 - SpringBoot / embedded Tomcat
 - data persistence (H2 / Hibernate)
 - database migration (Flyway)
+- API docs, Swagger UI
 
 ### Features
 
-- simple domain-driven package structure
+- domain-driven/feature based package structure
 - Rest API with Basic Authentication
+  - USER API:
+    - find user
+      ```
+      curl -X GET localhost:8080/users/admin
+      ```
+    - create user
+      ```
+      curl -X POST localhost:8080/users \
+        -d '{"name":"test", "rawPassword":"test"}'
+      ```
+    - update user (disable = patch the 'enabled' attribute)
+      ```
+      curl -X PATCH localhost:8080/users/test \
+        -H 'Content-Type: application/json-patch+json' \
+        -d '{"operation":"replace","path":"enabled","value":"false"}'
+      ```
 - global exception handler
 - enabled health check for probing
 

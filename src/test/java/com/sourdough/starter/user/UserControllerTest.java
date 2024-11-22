@@ -1,9 +1,7 @@
 package com.sourdough.starter.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sourdough.starter.user.dto.UserRequest;
+import com.sourdough.starter.user.dto.CreateUserRequest;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -11,6 +9,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.sourdough.starter.Fixtures.johnDoe;
+import static com.sourdough.starter.util.RequestUtils.getObjectMapper;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,8 +30,8 @@ class UserControllerTest {
 
     @Test
     void canFindUser() throws Exception {
-        Mockito.when(userService.find("john-doe")).thenReturn(
-                User.enabled().name("john-doe").password("lipsum").build()
+        when(userService.find("john-doe")).thenReturn(
+                johnDoe().build()
         );
 
         mockMvc.perform(get("/users/john-doe"))
@@ -37,24 +40,35 @@ class UserControllerTest {
 
     @Test
     void canCreateUser() throws Exception {
-        Mockito.when(userService.create("john-doe", "lipsum")).thenReturn(
-                User.enabled().name("john-doe").password("lipsum").build()
+        when(userService.create("john-doe", "lipsum")).thenReturn(
+                johnDoe().build()
         );
 
         mockMvc.perform(post("/users")
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(new UserRequest("john-doe", "lipsum"))))
+                                .content(getObjectMapper().writeValueAsString(new CreateUserRequest("john-doe", "lipsum"))))
                .andExpect(status().isOk());
     }
 
     @Test
-    void canDisableUser() throws Exception {
-        Mockito.when(userService.disable("john-doe")).thenReturn(
-                User.builder().name("john-doe").enabled(Boolean.FALSE).password("lipsum").build()
+    void canUpdateUser() throws Exception {
+        when(userService.patch(eq("john-doe"), any())).thenReturn(
+                johnDoe().enabled(Boolean.FALSE).build()
         );
 
-        mockMvc.perform(put("/users/john-doe/disable").with(csrf()))
+        mockMvc.perform(patch("/users/{name}", "john-doe")
+                                .with(csrf())
+                                .contentType("application/json-patch+json")
+                                .content(disableUserPatch()))
                .andExpect(status().isOk());
+    }
+
+    private String disableUserPatch() {
+        return getObjectMapper().createObjectNode()
+                                .put("operation", "replace")
+                                .put("path", "enabled")
+                                .put("value", "false")
+                                .toPrettyString();
     }
 }

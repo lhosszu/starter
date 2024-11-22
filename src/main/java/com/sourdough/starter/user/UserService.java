@@ -1,9 +1,13 @@
 package com.sourdough.starter.user;
 
-import com.sourdough.starter.util.RequestUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.fge.jsonpatch.JsonPatch;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import static com.sourdough.starter.util.RequestUtils.getAuthenticatedUserName;
+import static com.sourdough.starter.util.RequestUtils.getObjectMapper;
 
 /**
  * This class contains (mostly) placeholder methods used to implement basic API functionalities.
@@ -28,16 +32,30 @@ public class UserService {
         return userRepository.create(name, encodePassword(rawPassword));
     }
 
-    public User disable(String name) {
-        if (name.equalsIgnoreCase(RequestUtils.getAuthenticatedUserName())) {
-            throw new UserException("Cannot update authenticated user");
+    /**
+     * <a href="https://datatracker.ietf.org/doc/html/rfc7386">Perform JSON Merge Patch</a>
+     */
+    public User patch(String name, JsonNode patch) {
+        if (name.equalsIgnoreCase(getAuthenticatedUserName())) {
+            throw new UserException("Cannot patch authenticated user");
         }
 
-        return userRepository.disable(name)
+        return userRepository.findByName(name)
+                             .map(target -> applyPatch(target, patch))
+                             .map(userRepository::save)
                              .orElseThrow(() -> new UserException("User %s not found".formatted(name)));
     }
 
     private String encodePassword(String rawPassword) {
         return new BCryptPasswordEncoder().encode(rawPassword);
+    }
+
+    private User applyPatch(User target, JsonNode patch) {
+        try {
+            JsonNode patched = JsonPatch.fromJson(patch).apply(getObjectMapper().convertValue(target, JsonNode.class));
+            return getObjectMapper().treeToValue(patched, User.class);
+        } catch (Exception e) {
+            throw new UserException("Cannot patch user %s".formatted(target.getName()));
+        }
     }
 }

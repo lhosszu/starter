@@ -57,11 +57,11 @@ class UserServiceTest {
     }
 
     @Test
-    void givenAuthenticatedUser_whenDisable_thenThrowException() {
+    void givenAuthenticatedUser_whenPatch_thenThrowException() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(
-                new org.springframework.security.core.userdetails.User("foo", "", List.of()), null)
+                new org.springframework.security.core.userdetails.User("john-doe", "", List.of()), null)
         );
 
-        assertThatThrownBy(() -> userService.disable("foo")).isInstanceOf(UserException.class);
+        assertThatThrownBy(() -> userService.patch("john-doe", null)).isInstanceOf(UserException.class);
     }
 }
