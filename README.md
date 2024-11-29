@@ -37,9 +37,7 @@
 ### Build & run
 
 ```shell
-./mvnw clean package
-docker build . -t starter
-docker run -d -p 8080:8080 starter
+docker compose up -d
 ```
 
 ### API documentation
