@@ -5,8 +5,8 @@ spring:
     active: test
   datasource:
     url: jdbc:h2:file:./db/starter-test
-    username: sa
-    password: password
+    username:
+    password:
     driver-class-name: org.h2.Driver
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect

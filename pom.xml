@@ -17,6 +17,8 @@
         <java.version>21</java.version>
         <start-class>com.sourdough.starter.StarterApplication</start-class>
         <flyway.version>10.7.1</flyway.version>
+        <springdoc.version>2.0.2</springdoc.version>
+        <jsonpatch.version>1.13</jsonpatch.version>
     </properties>
 
     <dependencies>
@@ -39,12 +41,12 @@
         <dependency>
             <groupId>com.github.java-json-tools</groupId>
             <artifactId>json-patch</artifactId>
-            <version>1.13</version>
+            <version>${jsonpatch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.0.2</version>
+            <version>${springdoc.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -102,8 +104,8 @@
                 <version>${flyway.version}</version>
                 <configuration>
                     <url>jdbc:h2:file:./db/starter</url>
-                    <user>sa</user>
-                    <password>password</password>
+                    <user>${env.SPRING_DATASOURCE_USERNAME}</user>
+                    <password>${env.SPRING_DATASOURCE_USERNAME}</password>
                     <locations>filesystem:src/main/resources/db/migration</locations>
                     <cleanDisabled>false</cleanDisabled>
                 </configuration>
