@@ -11,10 +11,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
                    .httpBasic(withDefaults())
                    .csrf(AbstractHttpConfigurer::disable)

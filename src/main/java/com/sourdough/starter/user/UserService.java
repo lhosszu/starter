@@ -21,7 +21,6 @@ public class UserService {
     public User find(String name) {
         return userRepository.findEnabledByName(name)
                              .orElseThrow(() -> new UserException("User %s missing or disabled".formatted(name)));
-
     }
 
     public User create(String name, String rawPassword) {

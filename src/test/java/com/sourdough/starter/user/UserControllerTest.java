@@ -39,7 +39,7 @@ class UserControllerTest {
     }
 
     @Test
-    void canCreateUser() throws Exception {
+    void canPostUser() throws Exception {
         when(userService.create("john-doe", "lipsum")).thenReturn(
                 johnDoe().build()
         );
@@ -59,7 +59,7 @@ class UserControllerTest {
 
         mockMvc.perform(patch("/users/{name}", "john-doe")
                                 .with(csrf())
-                                .contentType("application/json-patch+json")
+                                .contentType("application/merge-patch+json")
                                 .content(disableUserPatch()))
                .andExpect(status().isOk());
     }

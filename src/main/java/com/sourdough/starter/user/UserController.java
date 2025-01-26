@@ -28,12 +28,12 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "Create new user")
-    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest userRequest) {
+    public ResponseEntity<UserResponse> postUser(@RequestBody CreateUserRequest userRequest) {
         User user = userService.create(userRequest.name(), userRequest.rawPassword());
         return ResponseEntity.ok(UserResponse.fromModel(user));
     }
 
-    @PatchMapping(value = "{name}", consumes = "application/json-patch+json")
+    @PatchMapping(value = "{name}", consumes = "application/merge-patch+json")
     @Operation(summary = "Patch user")
     public ResponseEntity<UserResponse> patchUser(@PathVariable String name, @RequestBody JsonNode patch) {
         User user = userService.patch(name, patch);
