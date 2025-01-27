@@ -22,7 +22,7 @@ public class UserController {
     @GetMapping("{name}")
     @Operation(summary = "Fetch user by name")
     public ResponseEntity<UserResponse> getUser(@Schema(example = "admin") @PathVariable String name) {
-        User user = userService.find(name);
+        User user = userService.findEnabled(name);
         return ResponseEntity.ok(UserResponse.fromModel(user));
     }
 

@@ -32,21 +32,21 @@ class UserServiceTest {
     void whenFind_thenReturnUser() {
         Mockito.when(userRepository.findEnabledByName("foo")).thenReturn(Optional.of(User.enabled().name("foo").password("bar").build()));
 
-        User actualUser = userService.find("foo");
+        User actualUser = userService.findEnabled("foo");
 
         assertThat(actualUser).isEqualTo(User.enabled().name("foo").password("bar").build());
     }
 
     @Test
     void whenFindMissingUserByName_thenThrowException() {
-        assertThatThrownBy(() -> userService.find("lipsum")).isInstanceOf(UserException.class);
+        assertThatThrownBy(() -> userService.findEnabled("lipsum")).isInstanceOf(UserException.class);
     }
 
     @Test
     void whenFindDisabledUserByName_thenThrowException() {
         Mockito.when(userRepository.findEnabledByName("foo")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.find("foo")).isInstanceOf(UserException.class);
+        assertThatThrownBy(() -> userService.findEnabled("foo")).isInstanceOf(UserException.class);
     }
 
     @Test

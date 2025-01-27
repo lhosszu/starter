@@ -30,7 +30,7 @@ class UserControllerTest {
 
     @Test
     void canFindUser() throws Exception {
-        when(userService.find("john-doe")).thenReturn(
+        when(userService.findEnabled("john-doe")).thenReturn(
                 johnDoe().build()
         );
 

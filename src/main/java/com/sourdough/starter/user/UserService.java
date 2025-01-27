@@ -3,22 +3,24 @@ package com.sourdough.starter.user;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import static com.sourdough.starter.util.RequestUtils.getAuthenticatedUserName;
 import static com.sourdough.starter.util.RequestUtils.getObjectMapper;
 
-/**
- * This class contains (mostly) placeholder methods used to implement basic API functionalities.
- */
 @Service
 @AllArgsConstructor
 public class UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     private final UserRepository userRepository;
 
-    public User find(String name) {
+    public User findEnabled(String name) {
+        logger.debug("Finding user {}", name);
         return userRepository.findEnabledByName(name)
                              .orElseThrow(() -> new UserException("User %s missing or disabled".formatted(name)));
     }
@@ -28,7 +30,8 @@ public class UserService {
             throw new UserException("User %s already exists".formatted(name));
         }
 
-        return userRepository.create(name, encodePassword(rawPassword));
+        logger.info("Creating user {}", name);
+        return userRepository.create(name, new BCryptPasswordEncoder().encode(rawPassword));
     }
 
     /**
@@ -39,14 +42,11 @@ public class UserService {
             throw new UserException("Cannot patch authenticated user");
         }
 
+        logger.info("Updating user {}", name);
         return userRepository.findByName(name)
                              .map(target -> applyPatch(target, patch))
-                             .map(userRepository::save)
+                             .map(userRepository::saveAndFlush)
                              .orElseThrow(() -> new UserException("User %s not found".formatted(name)));
-    }
-
-    private String encodePassword(String rawPassword) {
-        return new BCryptPasswordEncoder().encode(rawPassword);
     }
 
     private User applyPatch(User target, JsonNode patch) {
@@ -54,6 +54,7 @@ public class UserService {
             JsonNode patched = JsonPatch.fromJson(patch).apply(getObjectMapper().convertValue(target, JsonNode.class));
             return getObjectMapper().treeToValue(patched, User.class);
         } catch (Exception e) {
+            logger.error("Cannot patch user {}", target.getName(), e);
             throw new UserException("Cannot patch user %s".formatted(target.getName()));
         }
     }
